@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Brew & Co. Dashboard</title>
+    <script src="https://unpkg.com/core-js-bundle@3.32.0/minified.js"></script>
+    <script src="https://unpkg.com/zone.js@0.13.1/dist/zone.min.js"></script>
+    <script src="https://unpkg.com/rxjs@7.8.1/dist/bundles/rxjs.umd.min.js"></script>
+    <script src="https://unpkg.com/@angular/core@16.2.0/bundles/core.umd.js"></script>
+    <script src="https://unpkg.com/@angular/common@16.2.0/bundles/common.umd.js"></script>
+    <script src="https://unpkg.com/@angular/compiler@16.2.0/bundles/compiler.umd.js"></script>
+    <script src="https://unpkg.com/@angular/platform-browser@16.2.0/bundles/platform-browser.umd.js"></script>
+    <script src="https://unpkg.com/@angular/platform-browser-dynamic@16.2.0/bundles/platform-browser-dynamic.umd.js"></script>
+    <style>
+        :root {
+            --bg: #1c1917;
+            --card: #292524;
+            --accent: #f97316;
+            --text: #fafaf9;
+            --text-sub: #a8a29e;
+            --green: #22c55e;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 16px;
+        }
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #44403c;
+            margin-bottom: 16px;
+        }
+        h1 { font-size: 1.2rem; margin: 0; }
+        .tag {
+            background: rgba(34, 197, 94, 0.2);
+            color: var(--green);
+            padding: 4px 8px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        .card {
+            background: var(--card);
+            padding: 14px;
+            border-radius: 12px;
+        }
+        .label { font-size: 0.75rem; color: var(--text-sub); margin-bottom: 4px; }
+        .val { font-size: 1.4rem; font-weight: bold; }
+        .sub { font-size: 0.7rem; color: var(--green); margin-top: 4px; }
+        .section { font-size: 0.95rem; font-weight: 600; margin-bottom: 8px; }
+        .list {
+            background: var(--card);
+            border-radius: 12px;
+            padding: 8px 12px;
+            list-style: none;
+            margin: 0;
+        }
+        .item {
+            font-size: 0.85rem;
+            padding: 8px 0;
+            border-bottom: 1px solid #44403c;
+            display: flex;
+            justify-content: space-between;
+        }
+        .item:last-child { border-bottom: none; }
+        button {
+            background: var(--accent);
+            color: white;
+            border: none;
+            width: 100%;
+            padding: 12px;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-top: 16px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <app-coffee-dashboard></app-coffee-dashboard>
+
+    <script>
+        const { Component, NgModule } = ng.core;
+        const { BrowserModule } = ng.platformBrowser;
+        const { platformBrowserDynamic } = ng.platformBrowserDynamic;
+
+        const CoffeeDashboardComponent = Component({
+            selector: 'app-coffee-dashboard',
+            template: `
+                <header>
+                    <div>
+                        <h1>Brew & Co. Cafe</h1>
+                        <div style="font-size:0.75rem; color:var(--text-sub);">Downtown Location</div>
+                    </div>
+                    <div class="tag">ANGULAR LIVE</div>
+                </header>
+
+                <div class="grid">
+                    <div class="card">
+                        <div class="label">Today's Revenue</div>
+                        <div class="val">\${{ revenue.toLocaleString() }}</div>
+                        <div class="sub">+12% vs yesterday</div>
+                    </div>
+                    <div class="card">
+                        <div class="label">Orders Placed</div>
+                        <div class="val">{{ orders }}</div>
+                        <div class="sub">24 active in queue</div>
+                    </div>
+                    <div class="card">
+                        <div class="label">Top Drink</div>
+                        <div class="val" style="font-size:1.1rem; padding-top:4px;">Oat Latte</div>
+                        <div class="sub">62 cups sold</div>
+                    </div>
+                    <div class="card">
+                        <div class="label">Espresso Machine</div>
+                        <div class="val" style="color:var(--green); font-size:1.1rem; padding-top:4px;">Ready</div>
+                        <div class="sub">Temp 93.5°C</div>
+                    </div>
+                </div>
+
+                <div class="section">Recent Orders</div>
+                <ul class="list">
+                    <li *ngFor="let order of recentOrders" class="item">
+                        <span>#{{ order.id }} - {{ order.item }}</span>
+                        <span [style.color]="order.status === 'Ready' ? 'var(--green)' : 'var(--accent)'">{{ order.status }}</span>
+                    </li>
+                </ul>
+
+                <button (click)="addOrder()">Simulate New Order</button>
+            `
+        }).Class({
+            constructor: function() {
+                this.revenue = 1240;
+                this.orders = 184;
+                this.recentOrders = [
+                    { id: 184, item: 'Iced Vanilla Latte', status: 'Ready' },
+                    { id: 183, item: 'Double Espresso & Scone', status: 'Served' },
+                    { id: 182, item: 'Cold Brew w/ Foam', status: 'Served' }
+                ];
+            },
+            addOrder: function() {
+                this.orders++;
+                this.revenue += 5;
+                const drinks = ['Oat Milk Cappuccino', 'Matcha Latte', 'Flat White', 'Avocado Toast & Coffee'];
+                const drink = drinks[Math.floor(Math.random() * drinks.length)];
+                this.recentOrders.unshift({ id: this.orders, item: drink, status: 'Brewing' });
+            }
+        });
+
+        const AppModule = NgModule({
+            imports: [BrowserModule],
+            declarations: [CoffeeDashboardComponent],
+            bootstrap: [CoffeeDashboardComponent]
+        }).Class({
+            constructor: function() {}
+        });
+
+        platformBrowserDynamic().bootstrapModule(AppModule);
+    </script>
+</body>
+</html>
